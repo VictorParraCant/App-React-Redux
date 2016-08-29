@@ -1,90 +1,102 @@
-import React from 'react';
+import React, { Component } from 'react';
 import timezones from '../data/timezones';
 import map from 'lodash/map';
+import cx from 'classnames';
 
-class SignupForm extends React.Component {
+
+class SignupForm extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      username: '',
       email: '',
       password: '',
-      passwordConfirmation: '',
-      timezone: ''
+      error_email: null,
+      error_password: null
     }
-
-    this.onChange = this.onChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
   }
 
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  validate() {
+
+    const { email, password } = this.state;
+    let newState = {};
+    let hasErrors = false;
+
+    // Validaciones
+    if ( email !== "p@p.com" ) {
+      hasErrors = true;
+      newState.error_email = "que no va el mail";
+    } else {
+      newState.error_email = null;
+    }
+
+    if ( password !== "1234" ) {
+      hasErrors = true;
+      newState.error_password = "que no va la password";
+    } else {
+      newState.error_password = null;
+    }
+
+    if (hasErrors){
+      this.setState(newState);
+    } else {
+      return true;
+    }
+
+
+  }
+
   onSubmit(e) {
     e.preventDefault();
-    console.log(this.state);
+    if( this.validate() ){
+      console.log('para el backend');
+      // send to back ...
+    }
   }
 
   render() {
-    const options = map(timezones, (val, key) =>
-      <option key={val} value={val}>{key}</option>
-  );
+
+    const { email, password, error_email, error_password  } = this.state;
+    console.log(error_email, error_password);
+
+    const emailInputClass = cx({
+      "form-group": true,
+      "has-error": ( error_email !== null ) ? true : false
+    });
+
+    const passwordInputClass = cx({
+      "form-group":true,
+      "has-error": ( error_password !== null ) ? true : false
+    })
+
     return (
-      <form onSubmit={this.onSubmit}>
+      <form onSubmit={::this.onSubmit}>
         <h1>Join our community!</h1>
 
-        <div className="form-group">
-          <label className="control-label">Username</label>
-          <input
-            value={this.state.username}
-            onChange={this.onChange}
-            type="text"
-            name="username"
-            className="form-control"
-          />
-        </div>
-        <div className="form-group">
+        <div className={emailInputClass}>
           <label className="control-label">Email</label>
           <input
-            value={this.state.email}
-            onChange={this.onChange}
+            value={email}
+            onChange={::this.onChange}
             type="email"
             name="email"
             className="form-control"
           />
         </div>
-        <div className="form-group">
+
+        <div className={passwordInputClass}>
           <label className="control-label">Password</label>
           <input
-            value={this.state.password}
-            onChange={this.onChange}
+            value={password}
+            onChange={::this.onChange}
             type="password"
             name="password"
             className="form-control"
           />
-        </div>
-        <div className="form-group">
-          <label className="control-label">Confirmed to Password</label>
-          <input
-            value={this.state.passwordConfirmation}
-            onChange={this.onChange}
-            type="password"
-            name="passwordConfirmation"
-            className="form-control"
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="control-label">Timezone</label>
-          <select
-            className="timezone"
-            onChange={this.onChange}
-            value={this.state.timezone}
-            >
-            <option value="" disabled>Choose Your Timezone</option>
-            {options}
-          </select>
         </div>
 
         <div className="form-group">
